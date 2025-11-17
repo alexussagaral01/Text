@@ -2,12 +2,11 @@
 session_start();
 include 'db.php';
 
-// ADD CANDIDATE
 if(isset($_POST['add'])) {
     $candFName = $_POST['candFName'];
     $candLName = $_POST['candLName'];
     $posID = $_POST['posID'];
-    $candStat = $_POST['candStat'];
+    $candStat = 'Active';
 
     $sql = "INSERT INTO candidates (candFName, candLName, posID, candStat) 
             VALUES ('$candFName', '$candLName', '$posID', '$candStat')";
@@ -19,7 +18,6 @@ if(isset($_POST['add'])) {
     }
 }
 
-// UPDATE CANDIDATE
 if(isset($_POST['update'])) {
     $candID = $_POST['candID'];
     $candFName = $_POST['candFName'];
@@ -41,7 +39,6 @@ if(isset($_POST['update'])) {
     }
 }
 
-// DEACTIVATE/ACTIVATE CANDIDATE
 if(isset($_POST['toggle'])) {
     $candID = $_POST['candID'];
     $currentStatus = $_POST['currentStatus'];
@@ -57,7 +54,6 @@ if(isset($_POST['toggle'])) {
     }
 }
 
-// DELETE CANDIDATE
 if(isset($_POST['delete'])) {
     $candID = $_POST['candID'];
     
@@ -70,12 +66,11 @@ if(isset($_POST['delete'])) {
     }
 }
 
-// GET ALL POSITIONS FOR DROPDOWN
 $posSql = "SELECT posID, posName FROM positions WHERE posStat = 'Active'";
 $posResult = $conn->query($posSql);
 $positions = $posResult->fetch_all(MYSQLI_ASSOC);
 
-// GET ALL CANDIDATES FROM DATABASE
+
 $candSql = "SELECT candidates.candID, candidates.candFName, candidates.candLName, candidates.posID, candidates.candStat, positions.posName 
             FROM candidates 
             LEFT JOIN positions ON candidates.posID = positions.posID";
@@ -89,18 +84,6 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidates Management</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .form-section {
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
 </head>
 <body>
     <h1>Candidates Management</h1>
@@ -132,12 +115,6 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
             <?php endforeach; ?>
         </select>
         
-        <label>Status:</label>
-        <select name="candStat" id="candStat" required>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-        
         <button type="submit" name="add" id="submitBtn">Add Candidate</button>
     </form>
 
@@ -162,17 +139,17 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
                 <td><?php echo $candidate['posName']; ?></td>
                 <td><?php echo $candidate['candStat']; ?></td>
                 <td>
-                    <button type="button" onclick="editCandidate(<?php echo $candidate['candID']; ?>, '<?php echo $candidate['candFName']; ?>', '<?php echo $candidate['candLName']; ?>', <?php echo $candidate['posID']; ?>, '<?php echo $candidate['candStat']; ?>')">Update</button>
+                    <button type="button" class="btn-update" onclick="editCandidate(<?php echo $candidate['candID']; ?>, '<?php echo $candidate['candFName']; ?>', '<?php echo $candidate['candLName']; ?>', <?php echo $candidate['posID']; ?>, '<?php echo $candidate['candStat']; ?>')">Update</button>
                     
-                    <form method="POST" style="display:inline;">
+                    <form method="POST" class="inline-form">
                         <input type="hidden" name="candID" value="<?php echo $candidate['candID']; ?>">
                         <input type="hidden" name="currentStatus" value="<?php echo $candidate['candStat']; ?>">
-                        <button type="submit" name="toggle"><?php echo ($candidate['candStat'] == 'Active') ? 'Deactivate' : 'Activate'; ?></button>
+                        <button type="submit" name="toggle" class="<?php echo ($candidate['candStat'] == 'Active') ? 'btn-toggle-inactive' : 'btn-toggle-active'; ?>"><?php echo ($candidate['candStat'] == 'Active') ? 'Deactivate' : 'Activate'; ?></button>
                     </form>
                     
-                    <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this candidate?');">
+                    <form method="POST" class="inline-form" onsubmit="return confirm('Delete this candidate?');">
                         <input type="hidden" name="candID" value="<?php echo $candidate['candID']; ?>">
-                        <button type="submit" name="delete">Delete</button>
+                        <button type="submit" name="delete" class="btn-delete">Delete</button>
                     </form>
                 </td>
             </tr>
@@ -186,12 +163,9 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
             document.getElementById('candFName').value = candFName;
             document.getElementById('candLName').value = candLName;
             document.getElementById('posID').value = posID;
-            document.getElementById('candStat').value = candStat;
-            
             document.getElementById('formTitle').textContent = 'Update Candidate';
             document.getElementById('submitBtn').name = 'update';
             document.getElementById('submitBtn').textContent = 'Update Candidate';
-            
             document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
         }
     </script>

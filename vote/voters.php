@@ -2,13 +2,12 @@
 session_start();
 include 'db.php';
 
-// ADD VOTER
 if(isset($_POST['add'])) {
     $voterID = $_POST['voterID'];
     $voterFName = $_POST['voterFName'];
     $voterLName = $_POST['voterLName'];
     $voterPass = password_hash($_POST['voterPass'], PASSWORD_DEFAULT);
-    $voterStat = $_POST['voterStat'];
+    $voterStat = 'Active';
 
     $sql = "INSERT INTO voters (voterID, voterFName, voterLName, voterPass, voterStat) 
             VALUES ('$voterID', '$voterFName', '$voterLName', '$voterPass', '$voterStat')";
@@ -50,7 +49,6 @@ if(isset($_POST['update'])) {
     }
 }
 
-// DEACTIVATE/ACTIVATE VOTER
 if(isset($_POST['toggle'])) {
     $voterID = $_POST['voterID'];
     $currentStatus = $_POST['currentStatus'];
@@ -66,7 +64,6 @@ if(isset($_POST['toggle'])) {
     }
 }
 
-// DELETE VOTER
 if(isset($_POST['delete'])) {
     $voterID = $_POST['voterID'];
     
@@ -79,7 +76,6 @@ if(isset($_POST['delete'])) {
     }
 }
 
-// GET ALL VOTERS FROM DATABASE
 $sql = "SELECT voterID, voterFName, voterLName, voterStat, voted FROM voters";
 $result = $conn->query($sql);
 $voters = $result->fetch_all(MYSQLI_ASSOC);
@@ -91,18 +87,6 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voters Management</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .form-section {
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
 </head>
 <body>
     <h1>Voters Management</h1>
@@ -132,12 +116,6 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
         <label>Password:</label>
         <input type="password" name="voterPass" id="voterPass" required>
         
-        <label>Status:</label>
-        <select name="voterStat" id="voterStat" required>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-        
         <button type="submit" name="add" id="submitBtn">Add Voter</button>
     </form>
 
@@ -162,17 +140,17 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
                 <td><?php echo $voter['voterStat']; ?></td>
                 <td><?php echo $voter['voted']; ?></td>
                 <td>
-                    <button type="button" onclick="editVoter('<?php echo $voter['voterID']; ?>', '<?php echo $voter['voterFName']; ?>', '<?php echo $voter['voterLName']; ?>', '<?php echo $voter['voterStat']; ?>')">Update</button>
+                    <button type="button" class="btn-update" onclick="editVoter('<?php echo $voter['voterID']; ?>', '<?php echo $voter['voterFName']; ?>', '<?php echo $voter['voterLName']; ?>', '<?php echo $voter['voterStat']; ?>')">Update</button>
                     
-                    <form method="POST" style="display:inline;">
+                    <form method="POST" class="inline-form">
                         <input type="hidden" name="voterID" value="<?php echo $voter['voterID']; ?>">
                         <input type="hidden" name="currentStatus" value="<?php echo $voter['voterStat']; ?>">
-                        <button type="submit" name="toggle"><?php echo ($voter['voterStat'] == 'Active') ? 'Deactivate' : 'Activate'; ?></button>
+                        <button type="submit" name="toggle" class="<?php echo ($voter['voterStat'] == 'Active') ? 'btn-toggle-inactive' : 'btn-toggle-active'; ?>"><?php echo ($voter['voterStat'] == 'Active') ? 'Deactivate' : 'Activate'; ?></button>
                     </form>
                     
-                    <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this voter?');">
+                    <form method="POST" class="inline-form" onsubmit="return confirm('Delete this voter?');">
                         <input type="hidden" name="voterID" value="<?php echo $voter['voterID']; ?>">
-                        <button type="submit" name="delete">Delete</button>
+                        <button type="submit" name="delete" class="btn-delete">Delete</button>
                     </form>
                 </td>
             </tr>
@@ -186,14 +164,11 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
             document.getElementById('voterID').value = voterID;
             document.getElementById('voterFName').value = voterFName;
             document.getElementById('voterLName').value = voterLName;
-            document.getElementById('voterStat').value = voterStat;
             document.getElementById('voterPass').value = '';
-            
             document.getElementById('formTitle').textContent = 'Update Voter';
             document.getElementById('submitBtn').name = 'update';
             document.getElementById('submitBtn').textContent = 'Update Voter';
             document.getElementById('voterPass').required = false;
-            
             document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
