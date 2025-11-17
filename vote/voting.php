@@ -15,7 +15,6 @@ if(isset($_POST['login'])) {
     if($result->num_rows > 0) {
         $voter = $result->fetch_assoc();
         
-        // Verify password
         if(password_verify($voterPass, $voter['voterPass'])) {
             
             if($voter['voted'] == 'Yes') {

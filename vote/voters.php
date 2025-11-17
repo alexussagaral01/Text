@@ -139,7 +139,6 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
         </select>
         
         <button type="submit" name="add" id="submitBtn">Add Voter</button>
-        <button type="button" id="cancelBtn" class="hidden" onclick="cancelEdit()">Cancel</button>
     </form>
 
     <h3>List of Voters</h3>
@@ -183,7 +182,6 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
 
     <script>
         function editVoter(voterID, voterFName, voterLName, voterStat) {
-            // Fill the form with voter data
             document.getElementById('oldVoterID').value = voterID;
             document.getElementById('voterID').value = voterID;
             document.getElementById('voterFName').value = voterFName;
@@ -191,32 +189,12 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
             document.getElementById('voterStat').value = voterStat;
             document.getElementById('voterPass').value = '';
             
-            // Change form title and buttons
             document.getElementById('formTitle').textContent = 'Update Voter';
             document.getElementById('submitBtn').name = 'update';
             document.getElementById('submitBtn').textContent = 'Update Voter';
-            document.getElementById('cancelBtn').classList.remove('hidden');
             document.getElementById('voterPass').required = false;
             
-            // Scroll to form
             document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function cancelEdit() {
-            // Reset form
-            document.getElementById('oldVoterID').value = '';
-            document.getElementById('voterID').value = '';
-            document.getElementById('voterFName').value = '';
-            document.getElementById('voterLName').value = '';
-            document.getElementById('voterPass').value = '';
-            document.getElementById('voterStat').value = 'Active';
-            
-            // Reset form title and buttons
-            document.getElementById('formTitle').textContent = 'Add New Voter';
-            document.getElementById('submitBtn').name = 'add';
-            document.getElementById('submitBtn').textContent = 'Add Voter';
-            document.getElementById('cancelBtn').classList.add('hidden');
-            document.getElementById('voterPass').required = true;
         }
     </script>
 </body>

@@ -116,7 +116,6 @@ $positions = $result->fetch_all(MYSQLI_ASSOC);
         </select>
         
         <button type="submit" name="add" id="submitBtn">Add Position</button>
-        <button type="button" id="cancelBtn" class="hidden" onclick="cancelEdit()">Cancel</button>
     </form>
 
     <h3>List of Positions</h3>
@@ -158,34 +157,16 @@ $positions = $result->fetch_all(MYSQLI_ASSOC);
 
     <script>
         function editPosition(posID, posName, numOfPositions, posStat) {
-            // Fill the form with position data
             document.getElementById('posID').value = posID;
             document.getElementById('posName').value = posName;
             document.getElementById('numOfPositions').value = numOfPositions;
             document.getElementById('posStat').value = posStat;
             
-            // Change form title and buttons
             document.getElementById('formTitle').textContent = 'Update Position';
             document.getElementById('submitBtn').name = 'update';
             document.getElementById('submitBtn').textContent = 'Update Position';
-            document.getElementById('cancelBtn').classList.remove('hidden');
             
-            // Scroll to form
             document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function cancelEdit() {
-            // Reset form
-            document.getElementById('posID').value = '';
-            document.getElementById('posName').value = '';
-            document.getElementById('numOfPositions').value = '1';
-            document.getElementById('posStat').value = 'Active';
-            
-            // Reset form title and buttons
-            document.getElementById('formTitle').textContent = 'Add New Position';
-            document.getElementById('submitBtn').name = 'add';
-            document.getElementById('submitBtn').textContent = 'Add Position';
-            document.getElementById('cancelBtn').classList.add('hidden');
         }
     </script>
 </body>

@@ -139,7 +139,6 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
         </select>
         
         <button type="submit" name="add" id="submitBtn">Add Candidate</button>
-        <button type="button" id="cancelBtn" class="hidden" onclick="cancelEdit()">Cancel</button>
     </form>
 
     <h3>List of Candidates</h3>
@@ -183,36 +182,17 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
 
     <script>
         function editCandidate(candID, candFName, candLName, posID, candStat) {
-            // Fill the form with candidate data
             document.getElementById('candID').value = candID;
             document.getElementById('candFName').value = candFName;
             document.getElementById('candLName').value = candLName;
             document.getElementById('posID').value = posID;
             document.getElementById('candStat').value = candStat;
             
-            // Change form title and buttons
             document.getElementById('formTitle').textContent = 'Update Candidate';
             document.getElementById('submitBtn').name = 'update';
             document.getElementById('submitBtn').textContent = 'Update Candidate';
-            document.getElementById('cancelBtn').classList.remove('hidden');
             
-            // Scroll to form
             document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function cancelEdit() {
-            // Reset form
-            document.getElementById('candID').value = '';
-            document.getElementById('candFName').value = '';
-            document.getElementById('candLName').value = '';
-            document.getElementById('posID').value = '';
-            document.getElementById('candStat').value = 'Active';
-            
-            // Reset form title and buttons
-            document.getElementById('formTitle').textContent = 'Add New Candidate';
-            document.getElementById('submitBtn').name = 'add';
-            document.getElementById('submitBtn').textContent = 'Add Candidate';
-            document.getElementById('cancelBtn').classList.add('hidden');
         }
     </script>
 </body>

@@ -22,13 +22,11 @@ include 'db.php';
     </nav>
 
     <?php
-    // Get all active positions
     $posSql = "SELECT * FROM positions WHERE posStat = 'Active' ORDER BY posID";
     $posResult = $conn->query($posSql);
     $positions = $posResult->fetch_all(MYSQLI_ASSOC);
     
     foreach ($positions as $position):
-        // Get all active candidates for this position
         $candSql = "SELECT c.candID, c.candFName, c.candLName 
                     FROM candidates c 
                     WHERE c.posID = '{$position['posID']}' AND c.candStat = 'Active'
@@ -36,13 +34,11 @@ include 'db.php';
         $candResult = $conn->query($candSql);
         $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
         
-        // Calculate total votes for this position
         $totalVotesSql = "SELECT COUNT(*) as totalVotes FROM votes WHERE posID = '{$position['posID']}'";
         $totalVotesResult = $conn->query($totalVotesSql);
         $totalVotesRow = $totalVotesResult->fetch_assoc();
         $totalVotes = $totalVotesRow['totalVotes'];
         
-        // Get vote counts for each candidate
         $candidateVotes = [];
         foreach ($candidates as $candidate) {
             $voteSql = "SELECT COUNT(*) as voteCount FROM votes WHERE candID = '{$candidate['candID']}' AND posID = '{$position['posID']}'";
