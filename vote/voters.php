@@ -23,21 +23,18 @@ if(isset($_POST['update'])) {
     $voterID = $_POST['voterID'];
     $voterFName = $_POST['voterFName'];
     $voterLName = $_POST['voterLName'];
-    $voterStat = $_POST['voterStat'];
     
     if(!empty($_POST['voterPass'])) {
         $voterPass = password_hash($_POST['voterPass'], PASSWORD_DEFAULT);
         $sql = "UPDATE voters SET 
                 voterFName = '$voterFName',
                 voterLName = '$voterLName',
-                voterPass = '$voterPass',
-                voterStat = '$voterStat'
+                voterPass = '$voterPass'
                 WHERE voterID = '$voterID'";
     } else {
         $sql = "UPDATE voters SET 
                 voterFName = '$voterFName',
-                voterLName = '$voterLName',
-                voterStat = '$voterStat'
+                voterLName = '$voterLName'
                 WHERE voterID = '$voterID'";
     }
     
@@ -45,6 +42,21 @@ if(isset($_POST['update'])) {
         header("Location: voters.php");
     } else {
         echo "Error updating record: " . $conn->error;
+    }
+}
+
+if(isset($_GET['toggle'])) {
+    $voterID = $_GET['toggle'];
+    $currentStatus = $_GET['status'];
+    
+    $newStatus = ($currentStatus == 'Active') ? 'Inactive' : 'Active';
+    
+    $sql = "UPDATE voters SET voterStat = '$newStatus' WHERE voterID = '$voterID'";
+    
+    if($conn->query($sql) === TRUE) {
+        header("Location: voters.php");
+    } else {
+        echo "Error: " . $conn->error;
     }
 }
 
@@ -100,12 +112,6 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
         <label>Password:</label>
         <input type="password" name="voterPass" id="voterPass" required>
         
-        <label>Status:</label>
-        <select name="voterStat" id="voterStat" required>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-        
         <button type="submit" name="add" id="submitBtn">Add Voter</button>
     </form>
 
@@ -127,6 +133,7 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
                 $fname = $v['voterFName'];
                 $lname = $v['voterLName'];
                 $stat = $v['voterStat'];
+                $isActive = ($stat == 'Active');
             ?>
             <tr>
                 <td><?= $id ?></td>
@@ -136,6 +143,8 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
                 <td><?= $v['voted'] ?></td>
                 <td>
                     <button class="btn-update" onclick="editVoter('<?= $id ?>', '<?= $fname ?>', '<?= $lname ?>', '<?= $stat ?>')">Update</button>
+                    
+                    <button class="btn-toggle-<?= $isActive ? 'inactive' : 'active' ?>" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'"><?= $isActive ? 'Deactivate' : 'Activate' ?></button>
                     
                     <button class="btn-delete" onclick="if(confirm('Delete this voter?')) location='?delete=<?= $id ?>'">Delete</button>
                 </td>
@@ -150,7 +159,6 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
             document.getElementById('voterID').value = voterID;
             document.getElementById('voterFName').value = voterFName;
             document.getElementById('voterLName').value = voterLName;
-            document.getElementById('voterStat').value = voterStat;
             document.getElementById('voterPass').value = '';
             document.getElementById('formTitle').textContent = 'Update Voter';
             document.getElementById('submitBtn').name = 'update';
