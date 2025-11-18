@@ -81,9 +81,7 @@ include 'db.php';
                 </tr>
             </tfoot>
         </table>
-    </div>
-    
+    </div>  
     <?php endforeach; ?>
-
 </body>
 </html>

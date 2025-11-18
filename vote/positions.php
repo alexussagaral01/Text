@@ -2,9 +2,6 @@
 session_start();
 include 'db.php';
 
-// ============================================
-// ADD POSITION
-// ============================================
 if(isset($_POST['add'])) {
     $posName = $_POST['posName'];
     $numOfPositions = $_POST['numOfPositions'];
@@ -20,9 +17,6 @@ if(isset($_POST['add'])) {
     }
 }
 
-// ============================================
-// UPDATE POSITION
-// ============================================
 if(isset($_POST['update'])) {
     $posID = $_POST['posID'];
     $posName = $_POST['posName'];
@@ -42,9 +36,6 @@ if(isset($_POST['update'])) {
     }
 }
 
-// ============================================
-// TOGGLE STATUS (Active/Inactive)
-// ============================================
 if(isset($_GET['toggle'])) {
     $posID = $_GET['toggle'];
     $currentStatus = $_GET['status'];
@@ -60,9 +51,6 @@ if(isset($_GET['toggle'])) {
     }
 }
 
-// ============================================
-// DELETE POSITION
-// ============================================
 if(isset($_GET['delete'])) {
     $posID = $_GET['delete'];
     
@@ -75,9 +63,6 @@ if(isset($_GET['delete'])) {
     }
 }
 
-// ============================================
-// GET ALL POSITIONS
-// ============================================
 $sql = "SELECT * FROM positions";
 $result = $conn->query($sql);
 $positions = $result->fetch_all(MYSQLI_ASSOC);
@@ -128,7 +113,6 @@ $positions = $result->fetch_all(MYSQLI_ASSOC);
         </thead>
         <tbody>
             <?php foreach ($positions as $p): 
-                // Simple variables para sa buttons
                 $id = $p['posID'];
                 $name = $p['posName'];
                 $num = $p['numOfPositions'];
@@ -141,13 +125,10 @@ $positions = $result->fetch_all(MYSQLI_ASSOC);
                 <td><?= $num ?></td>
                 <td><?= $stat ?></td>
                 <td>
-                    <!-- UPDATE BUTTON -->
                     <button class="btn-update" onclick="editPosition(<?= $id ?>, '<?= $name ?>', <?= $num ?>, '<?= $stat ?>')">Update</button>
                     
-                    <!-- TOGGLE BUTTON (SIMPLIFIED!) -->
                     <button class="btn-toggle-<?= $isActive ? 'inactive' : 'active' ?>" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'"><?= $isActive ? 'Deactivate' : 'Activate' ?></button>
                     
-                    <!-- DELETE BUTTON (SIMPLIFIED!) -->
                     <button class="btn-delete" onclick="if(confirm('Delete this position?')) location='?delete=<?= $id ?>'">Delete</button>
                 </td>
             </tr>

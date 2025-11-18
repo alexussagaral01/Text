@@ -39,47 +39,36 @@ if(isset($_POST['logout'])) {
     header("Location: voting.php");
     exit();
 }
-
 if(isset($_POST['submit_vote'])) {
     $voterID = $_SESSION['voterID'];
+    $errors = [];
     
     $posSql = "SELECT * FROM positions WHERE posStat = 'Active'";
     $posResult = $conn->query($posSql);
-    $positions = $posResult->fetch_all(MYSQLI_ASSOC);
     
-    $errors = [];
-    
-    foreach ($positions as $position) {
-        $selectedCandidates = isset($_POST['position_' . $position['posID']]) ? $_POST['position_' . $position['posID']] : [];
-        $maxVotes = $position['numOfPositions'];
+    while($pos = $posResult->fetch_assoc()) {
+        $selected = $_POST['position_' . $pos['posID']] ?? [];
         
-        if (count($selectedCandidates) > $maxVotes) {
-            $errors[] = "Position '{$position['posName']}': You selected " . count($selectedCandidates) . " candidates, but maximum allowed is {$maxVotes}.";
+        if(count($selected) > $pos['numOfPositions']) {
+            $errors[] = "{$pos['posName']}: Max {$pos['numOfPositions']} only";
         }
     }
-
-    if (empty($errors)) {
-        $votesInserted = true;
+    
+    if(empty($errors)) {
+        $posSql = "SELECT * FROM positions WHERE posStat = 'Active'";
+        $posResult = $conn->query($posSql);
         
-        foreach ($positions as $position) {
-            $selectedCandidates = isset($_POST['position_' . $position['posID']]) ? $_POST['position_' . $position['posID']] : [];
+        while($pos = $posResult->fetch_assoc()) {
+            $selected = $_POST['position_' . $pos['posID']] ?? [];
             
-            foreach ($selectedCandidates as $candID) {
-                $voteSql = "INSERT INTO votes (voterID, candID, posID) VALUES ('$voterID', '$candID', '{$position['posID']}')";
-                if(!$conn->query($voteSql)) {
-                    $votesInserted = false;
-                    break;
-                }
+            foreach($selected as $candID) {
+                $conn->query("INSERT INTO votes (voterID, candID, posID) VALUES ('$voterID', '$candID', '{$pos['posID']}')");
             }
         }
         
-        if($votesInserted) {
-            $updateSql = "UPDATE voters SET voted = 'Yes' WHERE voterID = '$voterID'";
-            $conn->query($updateSql);
-            
-            $_SESSION['voteSuccess'] = true;
-            $loggedIn = false;
-        }
+        $conn->query("UPDATE voters SET voted = 'Yes' WHERE voterID = '$voterID'");
+        $_SESSION['voteSuccess'] = true;
+        $loggedIn = false;
     }
 }
 
