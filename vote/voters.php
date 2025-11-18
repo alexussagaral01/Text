@@ -19,26 +19,22 @@ if(isset($_POST['add'])) {
     }
 }
 
-// UPDATE VOTER
 if(isset($_POST['update'])) {
     $voterID = $_POST['voterID'];
     $voterFName = $_POST['voterFName'];
     $voterLName = $_POST['voterLName'];
-    $voterStat = $_POST['voterStat'];
     
     if(!empty($_POST['voterPass'])) {
         $voterPass = password_hash($_POST['voterPass'], PASSWORD_DEFAULT);
         $sql = "UPDATE voters SET 
                 voterFName = '$voterFName',
                 voterLName = '$voterLName',
-                voterPass = '$voterPass',
-                voterStat = '$voterStat'
+                voterPass = '$voterPass'
                 WHERE voterID = '$voterID'";
     } else {
         $sql = "UPDATE voters SET 
                 voterFName = '$voterFName',
-                voterLName = '$voterLName',
-                voterStat = '$voterStat'
+                voterLName = '$voterLName'
                 WHERE voterID = '$voterID'";
     }
     
@@ -49,9 +45,9 @@ if(isset($_POST['update'])) {
     }
 }
 
-if(isset($_POST['toggle'])) {
-    $voterID = $_POST['voterID'];
-    $currentStatus = $_POST['currentStatus'];
+if(isset($_GET['toggle'])) {
+    $voterID = $_GET['toggle'];
+    $currentStatus = $_GET['status'];
     
     $newStatus = ($currentStatus == 'Active') ? 'Inactive' : 'Active';
     
@@ -64,8 +60,8 @@ if(isset($_POST['toggle'])) {
     }
 }
 
-if(isset($_POST['delete'])) {
-    $voterID = $_POST['voterID'];
+if(isset($_GET['delete'])) {
+    $voterID = $_GET['delete'];
     
     $sql = "DELETE FROM voters WHERE voterID = '$voterID'";
     
@@ -132,26 +128,25 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($voters as $voter): ?>
+            <?php foreach ($voters as $v): 
+                $id = $v['voterID'];
+                $fname = $v['voterFName'];
+                $lname = $v['voterLName'];
+                $stat = $v['voterStat'];
+                $isActive = ($stat == 'Active');
+            ?>
             <tr>
-                <td><?php echo $voter['voterID']; ?></td>
-                <td><?php echo $voter['voterFName']; ?></td>
-                <td><?php echo $voter['voterLName']; ?></td>
-                <td><?php echo $voter['voterStat']; ?></td>
-                <td><?php echo $voter['voted']; ?></td>
+                <td><?= $id ?></td>
+                <td><?= $fname ?></td>
+                <td><?= $lname ?></td>
+                <td><?= $stat ?></td>
+                <td><?= $v['voted'] ?></td>
                 <td>
-                    <button type="button" class="btn-update" onclick="editVoter('<?php echo $voter['voterID']; ?>', '<?php echo $voter['voterFName']; ?>', '<?php echo $voter['voterLName']; ?>', '<?php echo $voter['voterStat']; ?>')">Update</button>
+                    <button class="btn-update" onclick="editVoter('<?= $id ?>', '<?= $fname ?>', '<?= $lname ?>', '<?= $stat ?>')">Update</button>
                     
-                    <form method="POST" class="inline-form">
-                        <input type="hidden" name="voterID" value="<?php echo $voter['voterID']; ?>">
-                        <input type="hidden" name="currentStatus" value="<?php echo $voter['voterStat']; ?>">
-                        <button type="submit" name="toggle" class="<?php echo ($voter['voterStat'] == 'Active') ? 'btn-toggle-inactive' : 'btn-toggle-active'; ?>"><?php echo ($voter['voterStat'] == 'Active') ? 'Deactivate' : 'Activate'; ?></button>
-                    </form>
+                    <button class="btn-toggle-<?= $isActive ? 'inactive' : 'active' ?>" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'"><?= $isActive ? 'Deactivate' : 'Activate' ?></button>
                     
-                    <form method="POST" class="inline-form" onsubmit="return confirm('Delete this voter?');">
-                        <input type="hidden" name="voterID" value="<?php echo $voter['voterID']; ?>">
-                        <button type="submit" name="delete" class="btn-delete">Delete</button>
-                    </form>
+                    <button class="btn-delete" onclick="if(confirm('Delete this voter?')) location='?delete=<?= $id ?>'">Delete</button>
                 </td>
             </tr>
             <?php endforeach; ?>

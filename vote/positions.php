@@ -2,6 +2,9 @@
 session_start();
 include 'db.php';
 
+// ============================================
+// ADD POSITION
+// ============================================
 if(isset($_POST['add'])) {
     $posName = $_POST['posName'];
     $numOfPositions = $_POST['numOfPositions'];
@@ -17,6 +20,9 @@ if(isset($_POST['add'])) {
     }
 }
 
+// ============================================
+// UPDATE POSITION
+// ============================================
 if(isset($_POST['update'])) {
     $posID = $_POST['posID'];
     $posName = $_POST['posName'];
@@ -36,9 +42,12 @@ if(isset($_POST['update'])) {
     }
 }
 
-if(isset($_POST['toggle'])) {
-    $posID = $_POST['posID'];
-    $currentStatus = $_POST['currentStatus'];
+// ============================================
+// TOGGLE STATUS (Active/Inactive)
+// ============================================
+if(isset($_GET['toggle'])) {
+    $posID = $_GET['toggle'];
+    $currentStatus = $_GET['status'];
     
     $newStatus = ($currentStatus == 'Active') ? 'Inactive' : 'Active';
     
@@ -51,8 +60,11 @@ if(isset($_POST['toggle'])) {
     }
 }
 
-if(isset($_POST['delete'])) {
-    $posID = $_POST['posID'];
+// ============================================
+// DELETE POSITION
+// ============================================
+if(isset($_GET['delete'])) {
+    $posID = $_GET['delete'];
     
     $sql = "DELETE FROM positions WHERE posID = '$posID'";
     
@@ -63,6 +75,9 @@ if(isset($_POST['delete'])) {
     }
 }
 
+// ============================================
+// GET ALL POSITIONS
+// ============================================
 $sql = "SELECT * FROM positions";
 $result = $conn->query($sql);
 $positions = $result->fetch_all(MYSQLI_ASSOC);
@@ -112,25 +127,28 @@ $positions = $result->fetch_all(MYSQLI_ASSOC);
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($positions as $position): ?>
+            <?php foreach ($positions as $p): 
+                // Simple variables para sa buttons
+                $id = $p['posID'];
+                $name = $p['posName'];
+                $num = $p['numOfPositions'];
+                $stat = $p['posStat'];
+                $isActive = ($stat == 'Active');
+            ?>
             <tr>
-                <td><?php echo $position['posID']; ?></td>
-                <td><?php echo $position['posName']; ?></td>
-                <td><?php echo $position['numOfPositions']; ?></td>
-                <td><?php echo $position['posStat']; ?></td>
+                <td><?= $id ?></td>
+                <td><?= $name ?></td>
+                <td><?= $num ?></td>
+                <td><?= $stat ?></td>
                 <td>
-                    <button type="button" class="btn-update" onclick="editPosition(<?php echo $position['posID']; ?>, '<?php echo $position['posName']; ?>', <?php echo $position['numOfPositions']; ?>, '<?php echo $position['posStat']; ?>')">Update</button>
+                    <!-- UPDATE BUTTON -->
+                    <button class="btn-update" onclick="editPosition(<?= $id ?>, '<?= $name ?>', <?= $num ?>, '<?= $stat ?>')">Update</button>
                     
-                    <form method="POST" class="inline-form">
-                        <input type="hidden" name="posID" value="<?php echo $position['posID']; ?>">
-                        <input type="hidden" name="currentStatus" value="<?php echo $position['posStat']; ?>">
-                        <button type="submit" name="toggle" class="<?php echo ($position['posStat'] == 'Active') ? 'btn-toggle-inactive' : 'btn-toggle-active'; ?>"><?php echo ($position['posStat'] == 'Active') ? 'Deactivate' : 'Activate'; ?></button>
-                    </form>
+                    <!-- TOGGLE BUTTON (SIMPLIFIED!) -->
+                    <button class="btn-toggle-<?= $isActive ? 'inactive' : 'active' ?>" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'"><?= $isActive ? 'Deactivate' : 'Activate' ?></button>
                     
-                    <form method="POST" class="inline-form" onsubmit="return confirm('Delete this position?');">
-                        <input type="hidden" name="posID" value="<?php echo $position['posID']; ?>">
-                        <button type="submit" name="delete" class="btn-delete">Delete</button>
-                    </form>
+                    <!-- DELETE BUTTON (SIMPLIFIED!) -->
+                    <button class="btn-delete" onclick="if(confirm('Delete this position?')) location='?delete=<?= $id ?>'">Delete</button>
                 </td>
             </tr>
             <?php endforeach; ?>

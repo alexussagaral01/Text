@@ -23,13 +23,11 @@ if(isset($_POST['update'])) {
     $candFName = $_POST['candFName'];
     $candLName = $_POST['candLName'];
     $posID = $_POST['posID'];
-    $candStat = $_POST['candStat'];
     
     $sql = "UPDATE candidates SET 
             candFName = '$candFName',
             candLName = '$candLName',
-            posID = '$posID',
-            candStat = '$candStat'
+            posID = '$posID'
             WHERE candID = '$candID'";
     
     if($conn->query($sql) === TRUE) {
@@ -39,9 +37,9 @@ if(isset($_POST['update'])) {
     }
 }
 
-if(isset($_POST['toggle'])) {
-    $candID = $_POST['candID'];
-    $currentStatus = $_POST['currentStatus'];
+if(isset($_GET['toggle'])) {
+    $candID = $_GET['toggle'];
+    $currentStatus = $_GET['status'];
     
     $newStatus = ($currentStatus == 'Active') ? 'Inactive' : 'Active';
     
@@ -54,8 +52,8 @@ if(isset($_POST['toggle'])) {
     }
 }
 
-if(isset($_POST['delete'])) {
-    $candID = $_POST['candID'];
+if(isset($_GET['delete'])) {
+    $candID = $_GET['delete'];
     
     $sql = "DELETE FROM candidates WHERE candID = '$candID'";
     
@@ -69,7 +67,6 @@ if(isset($_POST['delete'])) {
 $posSql = "SELECT posID, posName FROM positions WHERE posStat = 'Active'";
 $posResult = $conn->query($posSql);
 $positions = $posResult->fetch_all(MYSQLI_ASSOC);
-
 
 $candSql = "SELECT candidates.candID, candidates.candFName, candidates.candLName, candidates.posID, candidates.candStat, positions.posName 
             FROM candidates 
@@ -131,26 +128,26 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($candidates as $candidate): ?>
+            <?php foreach ($candidates as $c): 
+                $id = $c['candID'];
+                $fname = $c['candFName'];
+                $lname = $c['candLName'];
+                $posid = $c['posID'];
+                $stat = $c['candStat'];
+                $isActive = ($stat == 'Active');
+            ?>
             <tr>
-                <td><?php echo $candidate['candID']; ?></td>
-                <td><?php echo $candidate['candFName']; ?></td>
-                <td><?php echo $candidate['candLName']; ?></td>
-                <td><?php echo $candidate['posName']; ?></td>
-                <td><?php echo $candidate['candStat']; ?></td>
+                <td><?= $id ?></td>
+                <td><?= $fname ?></td>
+                <td><?= $lname ?></td>
+                <td><?= $c['posName'] ?></td>
+                <td><?= $stat ?></td>
                 <td>
-                    <button type="button" class="btn-update" onclick="editCandidate(<?php echo $candidate['candID']; ?>, '<?php echo $candidate['candFName']; ?>', '<?php echo $candidate['candLName']; ?>', <?php echo $candidate['posID']; ?>, '<?php echo $candidate['candStat']; ?>')">Update</button>
+                    <button class="btn-update" onclick="editCandidate(<?= $id ?>, '<?= $fname ?>', '<?= $lname ?>', <?= $posid ?>, '<?= $stat ?>')">Update</button>
                     
-                    <form method="POST" class="inline-form">
-                        <input type="hidden" name="candID" value="<?php echo $candidate['candID']; ?>">
-                        <input type="hidden" name="currentStatus" value="<?php echo $candidate['candStat']; ?>">
-                        <button type="submit" name="toggle" class="<?php echo ($candidate['candStat'] == 'Active') ? 'btn-toggle-inactive' : 'btn-toggle-active'; ?>"><?php echo ($candidate['candStat'] == 'Active') ? 'Deactivate' : 'Activate'; ?></button>
-                    </form>
+                    <button class="btn-toggle-<?= $isActive ? 'inactive' : 'active' ?>" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'"><?= $isActive ? 'Deactivate' : 'Activate' ?></button>
                     
-                    <form method="POST" class="inline-form" onsubmit="return confirm('Delete this candidate?');">
-                        <input type="hidden" name="candID" value="<?php echo $candidate['candID']; ?>">
-                        <button type="submit" name="delete" class="btn-delete">Delete</button>
-                    </form>
+                    <button class="btn-delete" onclick="if(confirm('Delete this candidate?')) location='?delete=<?= $id ?>'">Delete</button>
                 </td>
             </tr>
             <?php endforeach; ?>
