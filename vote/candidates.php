@@ -23,32 +23,19 @@ if(isset($_POST['update'])) {
     $candFName = $_POST['candFName'];
     $candLName = $_POST['candLName'];
     $posID = $_POST['posID'];
+    $candStat = $_POST['candStat'];
     
     $sql = "UPDATE candidates SET 
             candFName = '$candFName',
             candLName = '$candLName',
-            posID = '$posID'
+            posID = '$posID',
+            candStat = '$candStat'
             WHERE candID = '$candID'";
     
     if($conn->query($sql) === TRUE) {
         header("Location: candidates.php");
     } else {
         echo "Error updating record: " . $conn->error;
-    }
-}
-
-if(isset($_GET['toggle'])) {
-    $candID = $_GET['toggle'];
-    $currentStatus = $_GET['status'];
-    
-    $newStatus = ($currentStatus == 'Active') ? 'Inactive' : 'Active';
-    
-    $sql = "UPDATE candidates SET candStat = '$newStatus' WHERE candID = '$candID'";
-    
-    if($conn->query($sql) === TRUE) {
-        header("Location: candidates.php");
-    } else {
-        echo "Error: " . $conn->error;
     }
 }
 
@@ -112,6 +99,12 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
             <?php endforeach; ?>
         </select>
         
+        <label>Status:</label>
+        <select name="candStat" id="candStat" required>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        
         <button type="submit" name="add" id="submitBtn">Add Candidate</button>
     </form>
 
@@ -134,7 +127,6 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
                 $lname = $c['candLName'];
                 $posid = $c['posID'];
                 $stat = $c['candStat'];
-                $isActive = ($stat == 'Active');
             ?>
             <tr>
                 <td><?= $id ?></td>
@@ -144,8 +136,6 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
                 <td><?= $stat ?></td>
                 <td>
                     <button class="btn-update" onclick="editCandidate(<?= $id ?>, '<?= $fname ?>', '<?= $lname ?>', <?= $posid ?>, '<?= $stat ?>')">Update</button>
-                    
-                    <button class="btn-toggle-<?= $isActive ? 'inactive' : 'active' ?>" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'"><?= $isActive ? 'Deactivate' : 'Activate' ?></button>
                     
                     <button class="btn-delete" onclick="if(confirm('Delete this candidate?')) location='?delete=<?= $id ?>'">Delete</button>
                 </td>
@@ -160,6 +150,7 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
             document.getElementById('candFName').value = candFName;
             document.getElementById('candLName').value = candLName;
             document.getElementById('posID').value = posID;
+            document.getElementById('candStat').value = candStat;
             document.getElementById('formTitle').textContent = 'Update Candidate';
             document.getElementById('submitBtn').name = 'update';
             document.getElementById('submitBtn').textContent = 'Update Candidate';
