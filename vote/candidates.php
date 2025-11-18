@@ -52,25 +52,11 @@ if(isset($_GET['toggle'])) {
     }
 }
 
-if(isset($_GET['delete'])) {
-    $candID = $_GET['delete'];
-    
-    $sql = "DELETE FROM candidates WHERE candID = '$candID'";
-    
-    if($conn->query($sql) === TRUE) {
-        header("Location: candidates.php");
-    } else {
-        echo "Error deleting record: " . $conn->error;
-    }
-}
-
 $posSql = "SELECT posID, posName FROM positions WHERE posStat = 'Active'";
 $posResult = $conn->query($posSql);
 $positions = $posResult->fetch_all(MYSQLI_ASSOC);
 
-$candSql = "SELECT candidates.candID, candidates.candFName, candidates.candLName, candidates.posID, candidates.candStat, positions.posName 
-            FROM candidates 
-            LEFT JOIN positions ON candidates.posID = positions.posID";
+$candSql = "SELECT candID, candFName, candLName, posID, candStat FROM candidates";
 $candResult = $conn->query($candSql);
 $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
 ?>
@@ -93,24 +79,42 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
         <a href="winners.php">Winners</a>
     </nav>
 
-    <form method="POST" class="form-section">
+    <form method="POST">
         <h3 id="formTitle">Add New Candidate</h3>
         
         <input type="hidden" name="candID" id="candID">
         
-        <label>Candidate First Name:</label>
-        <input type="text" name="candFName" id="candFName" required>
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label>Candidate First Name:</label>
+                    <input type="text" name="candFName" id="candFName" required>
+                </div>
+            </div>
+        </div>
         
-        <label>Candidate Last Name:</label>
-        <input type="text" name="candLName" id="candLName" required>
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label>Candidate Last Name:</label>
+                    <input type="text" name="candLName" id="candLName" required>
+                </div>
+            </div>
+        </div>
         
-        <label>Position:</label>
-        <select name="posID" id="posID" required>
-            <option value="">Select Position</option>
-            <?php foreach ($positions as $pos): ?>
-                <option value="<?php echo $pos['posID']; ?>"><?php echo $pos['posName']; ?></option>
-            <?php endforeach; ?>
-        </select>
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label>Position:</label>
+                    <select name="posID" id="posID" required>
+                        <option value="">Select Position</option>
+                        <?php foreach ($positions as $pos): ?>
+                            <option value="<?php echo $pos['posID']; ?>"><?php echo $pos['posName']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+        </div>
         
         <button type="submit" name="add" id="submitBtn">Add Candidate</button>
     </form>
@@ -134,7 +138,6 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
                 $lname = $c['candLName'];
                 $posid = $c['posID'];
                 $stat = $c['candStat'];
-                $isActive = ($stat == 'Active');
             ?>
             <tr>
                 <td><?= $id ?></td>
@@ -145,9 +148,11 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
                 <td>
                     <button class="btn-update" onclick="editCandidate(<?= $id ?>, '<?= $fname ?>', '<?= $lname ?>', <?= $posid ?>, '<?= $stat ?>')">Update</button>
                     
-                    <button class="btn-toggle-<?= $isActive ? 'inactive' : 'active' ?>" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'"><?= $isActive ? 'Deactivate' : 'Activate' ?></button>
-                    
-                    <button class="btn-delete" onclick="if(confirm('Delete this candidate?')) location='?delete=<?= $id ?>'">Delete</button>
+                    <?php if($stat == 'Active'): ?>
+                        <button class="btn-toggle-inactive" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'">Deactivate</button>
+                    <?php else: ?>
+                        <button class="btn-toggle-active" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'">Activate</button>
+                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -163,7 +168,6 @@ $candidates = $candResult->fetch_all(MYSQLI_ASSOC);
             document.getElementById('formTitle').textContent = 'Update Candidate';
             document.getElementById('submitBtn').name = 'update';
             document.getElementById('submitBtn').textContent = 'Update Candidate';
-            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>

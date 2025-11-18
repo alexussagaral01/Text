@@ -24,19 +24,14 @@ if(isset($_POST['update'])) {
     $voterFName = $_POST['voterFName'];
     $voterLName = $_POST['voterLName'];
     
+    $sql = "UPDATE voters SET voterFName = '$voterFName', voterLName = '$voterLName'";
+    
     if(!empty($_POST['voterPass'])) {
         $voterPass = password_hash($_POST['voterPass'], PASSWORD_DEFAULT);
-        $sql = "UPDATE voters SET 
-                voterFName = '$voterFName',
-                voterLName = '$voterLName',
-                voterPass = '$voterPass'
-                WHERE voterID = '$voterID'";
-    } else {
-        $sql = "UPDATE voters SET 
-                voterFName = '$voterFName',
-                voterLName = '$voterLName'
-                WHERE voterID = '$voterID'";
+        $sql .= ", voterPass = '$voterPass'";
     }
+    
+    $sql .= " WHERE voterID = '$voterID'";
     
     if($conn->query($sql) === TRUE) {
         header("Location: voters.php");
@@ -57,18 +52,6 @@ if(isset($_GET['toggle'])) {
         header("Location: voters.php");
     } else {
         echo "Error: " . $conn->error;
-    }
-}
-
-if(isset($_GET['delete'])) {
-    $voterID = $_GET['delete'];
-    
-    $sql = "DELETE FROM voters WHERE voterID = '$voterID'";
-    
-    if($conn->query($sql) === TRUE) {
-        header("Location: voters.php");
-    } else {
-        echo "Error deleting record: " . $conn->error;
     }
 }
 
@@ -95,22 +78,46 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
         <a href="winners.php">Winners</a>
     </nav>
 
-    <form method="POST" class="form-section">
+    <form method="POST">
         <h3 id="formTitle">Add New Voter</h3>
         
         <input type="hidden" name="oldVoterID" id="oldVoterID">
         
-        <label>Voter ID:</label>
-        <input type="text" name="voterID" id="voterID" required>
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label>Voter ID:</label>
+                    <input type="text" name="voterID" id="voterID" required>
+                </div>
+            </div>
+        </div>
         
-        <label>Voter First Name:</label>
-        <input type="text" name="voterFName" id="voterFName" required>
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label>Voter First Name:</label>
+                    <input type="text" name="voterFName" id="voterFName" required>
+                </div>
+            </div>
+        </div>
         
-        <label>Voter Last Name:</label>
-        <input type="text" name="voterLName" id="voterLName" required>
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label>Voter Last Name:</label>
+                    <input type="text" name="voterLName" id="voterLName" required>
+                </div>
+            </div>
+        </div>
         
-        <label>Password:</label>
-        <input type="password" name="voterPass" id="voterPass" required>
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" name="voterPass" id="voterPass" required>
+                </div>
+            </div>
+        </div>
         
         <button type="submit" name="add" id="submitBtn">Add Voter</button>
     </form>
@@ -133,7 +140,6 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
                 $fname = $v['voterFName'];
                 $lname = $v['voterLName'];
                 $stat = $v['voterStat'];
-                $isActive = ($stat == 'Active');
             ?>
             <tr>
                 <td><?= $id ?></td>
@@ -144,9 +150,11 @@ $voters = $result->fetch_all(MYSQLI_ASSOC);
                 <td>
                     <button class="btn-update" onclick="editVoter('<?= $id ?>', '<?= $fname ?>', '<?= $lname ?>', '<?= $stat ?>')">Update</button>
                     
-                    <button class="btn-toggle-<?= $isActive ? 'inactive' : 'active' ?>" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'"><?= $isActive ? 'Deactivate' : 'Activate' ?></button>
-                    
-                    <button class="btn-delete" onclick="if(confirm('Delete this voter?')) location='?delete=<?= $id ?>'">Delete</button>
+                    <?php if($stat == 'Active'): ?>
+                        <button class="btn-toggle-inactive" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'">Deactivate</button>
+                    <?php else: ?>
+                        <button class="btn-toggle-active" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'">Activate</button>
+                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>

@@ -37,7 +37,6 @@ if(isset($_POST['update'])) {
 if(isset($_GET['toggle'])) {
     $posID = $_GET['toggle'];
     $currentStatus = $_GET['status'];
-    
     $newStatus = ($currentStatus == 'Active') ? 'Inactive' : 'Active';
     
     $sql = "UPDATE positions SET posStat = '$newStatus' WHERE posID = '$posID'";
@@ -46,18 +45,6 @@ if(isset($_GET['toggle'])) {
         header("Location: positions.php");
     } else {
         echo "Error: " . $conn->error;
-    }
-}
-
-if(isset($_GET['delete'])) {
-    $posID = $_GET['delete'];
-    
-    $sql = "DELETE FROM positions WHERE posID = '$posID'";
-    
-    if($conn->query($sql) === TRUE) {
-        header("Location: positions.php");
-    } else {
-        echo "Error deleting record: " . $conn->error;
     }
 }
 
@@ -84,16 +71,28 @@ $positions = $result->fetch_all(MYSQLI_ASSOC);
         <a href="winners.php">Winners</a>
     </nav>
 
-    <form method="POST" class="form-section">
+    <form method="POST" >
         <h3 id="formTitle">Add New Position</h3>
         
         <input type="hidden" name="posID" id="posID">
         
-        <label>Position Name:</label>
-        <input type="text" name="posName" id="posName" required>
-        
-        <label>Number of Positions:</label>
-        <input type="number" name="numOfPositions" id="numOfPositions" min="1" value="1" required>
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label>Position Name:</label>
+                    <input type="text" name="posName" id="posName" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label>Number of Positions:</label>
+                    <input type="number" name="numOfPositions" id="numOfPositions" min="1" value="1" required>
+                </div>
+            </div>
+        </div>
         
         <button type="submit" name="add" id="submitBtn">Add Position</button>
     </form>
@@ -115,7 +114,6 @@ $positions = $result->fetch_all(MYSQLI_ASSOC);
                 $name = $p['posName'];
                 $num = $p['numOfPositions'];
                 $stat = $p['posStat'];
-                $isActive = ($stat == 'Active');
             ?>
             <tr>
                 <td><?= $id ?></td>
@@ -125,9 +123,11 @@ $positions = $result->fetch_all(MYSQLI_ASSOC);
                 <td>
                     <button class="btn-update" onclick="editPosition(<?= $id ?>, '<?= $name ?>', <?= $num ?>, '<?= $stat ?>')">Update</button>
                     
-                    <button class="btn-toggle-<?= $isActive ? 'inactive' : 'active' ?>" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'"><?= $isActive ? 'Deactivate' : 'Activate' ?></button>
-                    
-                    <button class="btn-delete" onclick="if(confirm('Delete this position?')) location='?delete=<?= $id ?>'">Delete</button>
+                    <?php if($stat == 'Active'): ?>
+                        <button class="btn-toggle-inactive" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'">Deactivate</button>
+                    <?php else: ?>
+                        <button class="btn-toggle-active" onclick="location='?toggle=<?= $id ?>&status=<?= $stat ?>'">Activate</button>
+                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>

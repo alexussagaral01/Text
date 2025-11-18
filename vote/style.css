@@ -13,7 +13,6 @@ button { padding: 8px 15px; cursor: pointer; margin-right: 5px; }
 nav { margin: 20px 0; padding: 10px; background-color: #f8f8f8; }
 nav a { margin-right: 10px; text-decoration: none; color: #333; }
 nav a:hover { text-decoration: underline; }
-label { display: block; margin-top: 10px; }
 input[type="checkbox"] { width: auto; margin-right: 5px; }
 .success-msg { padding: 10px; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; margin: 10px 0; }
 .error-msg { padding: 10px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; margin: 10px 0; }
@@ -33,3 +32,6 @@ input[type="checkbox"] { width: auto; margin-right: 5px; }
 .winner-row { background: #d4edda; }
 .summary-box { margin-top: 15px; padding: 10px; background: #e7f3ff; border-radius: 5px; }
 .no-candidates { color: #dc3545; }
+.form-group { margin-bottom: 15px;}
+.form-row {display: flex; gap: 20px;}
+.form-col {flex: 1;}
